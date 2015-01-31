@@ -1,0 +1,11 @@
+#!/usr/bin/env python
+
+import vanilla
+
+h = vanilla.Hub()
+b = h.bean(port=8000)
+
+
+@b.get('/')
+def index(request):
+    return 'Hi'
