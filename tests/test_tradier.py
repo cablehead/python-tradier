@@ -22,9 +22,32 @@ def test_core(token):
     # c.request(
     # 'GET', 'markets/fundamentals/company', params={'symbols': 'spy'})
 
-    print "1"
-    print c.watchlists()
+    # print c.watchlists()
 
-    print "2"
     # print c.watchlists.get('foo21')
     # print c.watchlists.delete('default')
+
+    print
+    print
+
+    """
+    print c.user.profile()
+    print
+    print c.user.balances()
+    """
+
+    import json
+
+    """
+    got = c.request(
+        'GET',
+        'markets/options/expirations',
+        params={'symbol': 'AAPL'})
+
+    print json.dumps(got, sort_keys=True, indent=4, separators=(',', ': '))
+    """
+
+    print c.options.expirations('amrs')
+
+    got =  c.options.chains('amrs', '2015-09-18')
+    print json.dumps(got, sort_keys=True, indent=4, separators=(',', ': '))
