@@ -10,16 +10,14 @@ h = vanilla.Hub()
 b = h.bean(host='0.0.0.0', port=8000)
 
 
+# '/v1/oauth/authorize?client_id='
 uri = 'https://api.tradier.com/v1/'
-
-'/v1/oauth/authorize?client_id='
-
 
 
 @b.get('/')
 def index(request):
     print request
-    return 'Hi'
+    return 'auth'
 
 
 h.stop_on_term()
