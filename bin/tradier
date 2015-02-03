@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+
+"""
+Usage:
+    tradier <symbol> [<expiration>]
+"""
+
+import operator
+import sys
+import os
+
+import docopt
+import arrow
+
+import tradier
+
+
+def main(api, argv):
+    if not argv['<expiration>']:
+        expirations = api.options.expirations(argv['<symbol>'])
+        for expiration in expirations:
+            print '%s - in %s days' % (
+                expiration, (arrow.get(expiration) - arrow.utcnow()).days)
+        return
+
+    contracts = api.options.chains(argv['<symbol>'], argv['<expiration>'])
+    for contract in sorted(contracts, key=operator.itemgetter('strike')):
+        print contract['option_type'], contract['strike'], \
+            contract['bid'], contract['ask']
+
+if __name__ == '__main__':
+    argv = docopt.docopt(__doc__)
+    api = tradier.Tradier(os.environ['TRADIER_ACCESS_TOKEN'])
+    sys.exit(main(api, argv))
