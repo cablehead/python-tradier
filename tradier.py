@@ -13,6 +13,7 @@ class Tradier(object):
         self.token = token
         self.user = Tradier.User(self)
         self.options = Tradier.Options(self)
+        self.accounts = Tradier.Accounts(self)
         self.watchlists = Tradier.Watchlists(self)
 
     def request(
@@ -47,6 +48,20 @@ class Tradier(object):
 
         def balances(self):
             response = self.agent.request('GET', 'user/balances')
+            return response
+
+    class Accounts(object):
+        def __init__(self, agent):
+            self.agent = agent
+
+        def orders(self, account_id):
+            response = self.agent.request(
+                'GET', 'accounts/%s/orders' % account_id)
+            return response['orders']['order']
+
+        def order(self, account_id, order_id):
+            response = self.agent.request(
+                'GET', 'accounts/%s/orders/%s' % (account_id, order_id))
             return response
 
     class Options(object):

@@ -2,7 +2,9 @@
 
 """
 Usage:
-    tradier <symbol> [<expiration>]
+    tradier user balances
+    tradier account <account_id> [<order_id>]
+    tradier chain <symbol> [<expiration>]
 """
 
 import operator
@@ -16,17 +18,61 @@ import tradier
 
 
 def main(api, argv):
-    if not argv['<expiration>']:
-        expirations = api.options.expirations(argv['<symbol>'])
-        for expiration in expirations:
-            print '%s - in %s days' % (
-                expiration, (arrow.get(expiration) - arrow.utcnow()).days)
+    if argv['user']:
+        if argv['balances']:
+            print api.user.balances()
+            return
+
+    if argv['account']:
+        if argv['<order_id>']:
+            print api.accounts.order(argv['<account_id>'], argv['<order_id>'])
+            return
+
+        orders = api.accounts.orders(argv['<account_id>'])
+        print len(orders)
+
+        print
+        for order in orders:
+
+            if order['class'] == 'multileg':
+                # legs = order['leg']
+                # del order['leg']
+                # print order.keys()
+                # print order
+                print
+                print order
+                print
+                print order['id'], order['symbol'], order['status'], order['class'], order['strategy'], order['price'], order['type']
+                print
+                continue
+                print
+                # for leg in order['leg']:
+                for leg in legs:
+                    print leg
+                print
+
+            elif order['class'] == 'option':
+                print
+                print order
+                print
+                print order['id'], order['symbol'], order['option_symbol'], order['side'], order['status'], order['quantity'], order['class'], order['price'], order['type']
+                print
+
         return
 
-    contracts = api.options.chains(argv['<symbol>'], argv['<expiration>'])
-    for contract in sorted(contracts, key=operator.itemgetter('strike')):
-        print contract['option_type'], contract['strike'], \
-            contract['bid'], contract['ask']
+    if argv['chain']:
+        if not argv['<expiration>']:
+            expirations = api.options.expirations(argv['<symbol>'])
+            for expiration in expirations:
+                print '%s - in %s days' % (
+                    expiration, (arrow.get(expiration) - arrow.utcnow()).days)
+            return
+
+        contracts = api.options.chains(argv['<symbol>'], argv['<expiration>'])
+        for contract in sorted(contracts, key=operator.itemgetter('strike')):
+            print contract['option_type'], contract['strike'], \
+                contract['bid'], contract['ask']
+        return
 
 if __name__ == '__main__':
     argv = docopt.docopt(__doc__)
