@@ -49,5 +49,5 @@ def test_core(token):
 
     print c.options.expirations('amrs')
 
-    got =  c.options.chains('amrs', '2015-09-18')
+    got = c.options.chains('amrs', '2015-09-18')
     print json.dumps(got, sort_keys=True, indent=4, separators=(',', ': '))

@@ -18,13 +18,13 @@ class Tradier(object):
         self.watchlists = Tradier.Watchlists(self)
 
     def request(
-        self,
-        method,
-        path,
-        endpoint='brokerage',
-        headers=None,
-        params=None,
-        data=None):
+            self,
+            method,
+            path,
+            endpoint='brokerage',
+            headers=None,
+            params=None,
+            data=None):
 
         headers = headers or {}
         headers['Authorization'] = 'Bearer %s' % self.token
