@@ -70,12 +70,28 @@ def main(api, argv):
         return
 
     if argv['quote']:
-        for quote in api.markets.quotes(argv['<symbol>']):
-            last = quote['close'] or quote['open'] or quote['prevclose']
-            mid = (quote['bid'] + quote['ask']) / 2
-            change = ((mid - last) / last) * 100
+        class Quote(object):
+            def __init__(self, data):
+                self.data = data
+
+            @property
+            def mid(self):
+                return (self.data['bid'] + self.data['ask']) / 2
+
+            @property
+            def last(self):
+                return self.data['close'] or \
+                    self.data['open'] or \
+                    self.data['prevclose']
+
+            @property
+            def change(self):
+                return ((self.mid - self.last) / self.last) * 100
+
+        quotes = [Quote(x) for x in api.markets.quotes(argv['<symbol>'])]
+        for q in reversed(sorted(quotes, key=lambda x: x.change)):
             print '%-6s %6.2f %6.2f %6.2f' % (
-                quote['symbol'], last, mid, change)
+                q.data['symbol'], q.last, q.mid, q.change)
         return
 
     if argv['chain']:
