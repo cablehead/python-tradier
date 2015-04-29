@@ -8,6 +8,7 @@ Usage:
 """
 
 import operator
+import json
 import sys
 import os
 
@@ -17,10 +18,15 @@ import arrow
 import tradier
 
 
+def dumps(data):
+    return json.dumps(
+        data, sort_keys=True, indent=4, separators=(',', ': '))
+
+
 def main(api, argv):
     if argv['user']:
         if argv['balances']:
-            print api.user.balances()
+            print dumps(api.user.balances())
             return
 
     if argv['account']:
@@ -29,6 +35,8 @@ def main(api, argv):
             return
 
         orders = api.accounts.orders(argv['<account_id>'])
+        print dumps(orders)
+        return
         print len(orders)
 
         print
