@@ -71,9 +71,11 @@ def main(api, argv):
 
     if argv['quote']:
         for quote in api.markets.quotes(argv['<symbol>']):
-            print '%-6s %6.2f' % (
-                quote['symbol'],
-                (quote['bid'] + quote['ask']) / 2)
+            last = quote['close'] or quote['open'] or quote['prevclose']
+            mid = (quote['bid'] + quote['ask']) / 2
+            change = ((mid - last) / last) * 100
+            print '%-6s %6.2f %6.2f %6.2f' % (
+                quote['symbol'], last, mid, change)
         return
 
     if argv['chain']:
