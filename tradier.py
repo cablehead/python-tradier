@@ -12,8 +12,9 @@ class Tradier(object):
     def __init__(self, token):
         self.token = token
         self.user = Tradier.User(self)
-        self.options = Tradier.Options(self)
         self.accounts = Tradier.Accounts(self)
+        self.markets = Tradier.Markets(self)
+        self.options = Tradier.Options(self)
         self.watchlists = Tradier.Watchlists(self)
 
     def request(
@@ -63,6 +64,20 @@ class Tradier(object):
             response = self.agent.request(
                 'GET', 'accounts/%s/orders/%s' % (account_id, order_id))
             return response
+
+    class Markets(object):
+        def __init__(self, agent):
+            self.agent = agent
+
+        def quotes(self, symbols):
+            response = self.agent.request(
+                'GET',
+                'markets/quotes',
+                params={'symbols': ','.join(symbols)})
+            quote = response['quotes']['quote']
+            if not isinstance(quote, list):
+                quote = [quote]
+            return quote
 
     class Options(object):
         def __init__(self, agent):

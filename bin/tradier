@@ -5,6 +5,7 @@ Usage:
     tradier user balances
     tradier account <account_id> [<order_id>]
     tradier chain <symbol> [<expiration>]
+    tradier quote <symbol>...
 """
 
 import operator
@@ -66,6 +67,13 @@ def main(api, argv):
                 print order['id'], order['symbol'], order['option_symbol'], order['side'], order['status'], order['quantity'], order['class'], order['price'], order['type']
                 print
 
+        return
+
+    if argv['quote']:
+        for quote in api.markets.quotes(argv['<symbol>']):
+            print '%-6s %6.2f' % (
+                quote['symbol'],
+                (quote['bid'] + quote['ask']) / 2)
         return
 
     if argv['chain']:
