@@ -74,7 +74,7 @@ class Tradier(object):
                 'GET',
                 'markets/quotes',
                 params={'symbols': ','.join(symbols)})
-            quote = response['quotes']['quote']
+            quote = response['quotes'].get('quote', [])
             if not isinstance(quote, list):
                 quote = [quote]
             return quote
