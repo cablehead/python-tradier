@@ -95,7 +95,9 @@ class Tradier(object):
                 'GET',
                 'markets/options/chains',
                 params={'symbol': symbol, 'expiration': expiration})
-            return response['options']['option']
+            if response['options']:
+                return response['options']['option']
+            return []
 
     class Watchlists(object):
         def __init__(self, agent):
