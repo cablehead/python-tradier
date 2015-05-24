@@ -1,15 +1,9 @@
-import requests
-
-
-endpoints = {
-    'staging': 'https://sandbox.tradier.com/v1/',
-    'brokerage': 'https://api.tradier.com/v1/',
-    'streaming': 'https://stream.tradier.com/v1/',
-    'beta': 'https://api.tradier.com/beta/', }
+import json
 
 
 class Tradier(object):
-    def __init__(self, token):
+    def __init__(self, httpclient, token):
+        self.httpclient = httpclient
         self.token = token
         self.user = Tradier.User(self)
         self.accounts = Tradier.Accounts(self)
@@ -21,7 +15,6 @@ class Tradier(object):
             self,
             method,
             path,
-            endpoint='brokerage',
             headers=None,
             params=None,
             data=None):
@@ -29,15 +22,19 @@ class Tradier(object):
         headers = headers or {}
         headers['Authorization'] = 'Bearer %s' % self.token
         headers['Accept'] = 'application/json'
-        response = requests.request(
+
+        def callback(response):
+            if response.code != 200:
+                raise Exception(response.code, response.body)
+            return json.loads(response.body)
+
+        return self.httpclient.request(
+            callback,
             method,
-            endpoints[endpoint]+path,
+            path,
             headers=headers,
             params=params,
             data=data)
-        if response.status_code != 200:
-            raise Exception(response.status_code, response.text)
-        return response.json()
 
     class User(object):
         def __init__(self, agent):
