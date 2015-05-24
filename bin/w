@@ -1,23 +1,15 @@
 #!/usr/bin/env python
 
-import logging
+import os
 
+import logging
 logging.basicConfig()
 
+import tradier
 import vanilla
 
 h = vanilla.Hub()
-b = h.bean(host='0.0.0.0', port=8000)
 
+api = tradier.vanilla.Tradier(h, os.environ['TRADIER_ACCESS_TOKEN'])
 
-# '/v1/oauth/authorize?client_id='
-uri = 'https://api.tradier.com/v1/'
-
-
-@b.get('/')
-def index(request):
-    print request
-    return 'auth'
-
-
-h.stop_on_term()
+print api.user.profile().recv()

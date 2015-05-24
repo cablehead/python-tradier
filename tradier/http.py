@@ -101,3 +101,18 @@ class vanilla(object):
             parsed = urlparse.urlsplit(uri)
             self.host = '%s://%s' % (parsed.scheme, parsed.netloc)
             self.base_path = parsed.path
+
+        def request(
+            self, callback, method, path,
+                headers=None, params=None, data=None):
+
+            conn = self.h.http.connect(self.host)
+            recver = conn.request(
+                method, self.base_path+path,
+                headers=headers, params=params, data=data)
+            return recver.map(self.response).map(callback)
+            return recver
+
+        def response(self, response):
+            return Response(
+                response.status.code, response.headers, response.consume())

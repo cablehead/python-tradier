@@ -12,3 +12,10 @@ endpoints = {
 def Tradier(token, endpoint='brokerage'):
     httpclient = http.std.Client(endpoints[endpoint])
     return core.Tradier(httpclient, token)
+
+
+class vanilla(object):
+    @classmethod
+    def Tradier(klass, h, token, endpoint='brokerage'):
+        httpclient = http.vanilla.Client(h, endpoints[endpoint])
+        return core.Tradier(httpclient, token)
