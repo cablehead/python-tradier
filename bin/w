@@ -12,6 +12,7 @@ h = vanilla.Hub()
 
 api = tradier.vanilla.Tradier(h, os.environ['TRADIER_ACCESS_TOKEN'])
 
+
 print api.user.profile().recv()
-print api.user.profile().recv()
-print api.user.profile().recv()
+print api.options.expirations('aapl').recv()
+print api.options.chains('aapl', '2015-07-02').recv()

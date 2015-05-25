@@ -17,19 +17,25 @@ class Tradier(object):
             path,
             headers=None,
             params=None,
-            data=None):
+            data=None,
+            callback=None):
 
         headers = headers or {}
         headers['Authorization'] = 'Bearer %s' % self.token
         headers['Accept'] = 'application/json'
 
-        def callback(response):
+        def base_callback(response):
             if response.code != 200:
                 raise Exception(response.code, response.body)
             return json.loads(response.body)
 
+        if callback == None:
+            cb = base_callback
+        else:
+            cb = lambda x: callback(base_callback(x))
+
         return self.httpclient.request(
-            callback,
+            cb,
             method,
             path,
             headers=headers,
@@ -81,20 +87,22 @@ class Tradier(object):
             self.agent = agent
 
         def expirations(self, symbol):
-            response = self.agent.request(
+            return self.agent.request(
                 'GET',
                 'markets/options/expirations',
-                params={'symbol': symbol})
-            return response['expirations']['date']
+                params={'symbol': symbol},
+                callback=(lambda x: x['expirations']['date']))
 
         def chains(self, symbol, expiration):
-            response = self.agent.request(
+            def callback(response):
+                if response['options']:
+                    return response['options']['option']
+                return []
+            return self.agent.request(
                 'GET',
                 'markets/options/chains',
-                params={'symbol': symbol, 'expiration': expiration})
-            if response['options']:
-                return response['options']['option']
-            return []
+                params={'symbol': symbol, 'expiration': expiration},
+                callback=callback)
 
     class Watchlists(object):
         def __init__(self, agent):
