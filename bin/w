@@ -1,18 +1,82 @@
 #!/usr/bin/env python
 
-import os
+"""
+Usage:
+    w calc <code> <type> <strike> [<num>]
+"""
 
-import logging
-logging.basicConfig()
+import pprint
+import sys
+import os
 
 import tradier
 import vanilla
 
-h = vanilla.Hub()
+import docopt
+import arrow
 
-api = tradier.vanilla.Tradier(h, os.environ['TRADIER_ACCESS_TOKEN'])
+
+def to_option_symbol(code, expiration, typ, strike):
+    return '%s%s%s%08d' % (
+        code.upper(),
+        expiration.strftime('%y%m%d'),
+        typ,
+        strike*1000,)
 
 
-print api.user.profile().recv()
-print api.options.expirations('aapl').recv()
-print api.options.chains('aapl', '2015-07-02').recv()
+
+def do_calc(code, typ, strike, num):
+    h = vanilla.Hub()
+    api = tradier.vanilla.Tradier(h, os.environ['TRADIER_ACCESS_TOKEN'])
+
+    expirations = [arrow.get(x) for x in api.options.expirations(code).recv()]
+
+    now = arrow.now()
+
+    quotes = [
+        to_option_symbol(code, expiration, typ, strike)
+        for expiration in expirations]
+
+    for quote in api.markets.quotes(quotes).recv():
+        expiration = arrow.get(quote['expiration_date'])
+        mid = (quote['ask'] + quote['bid']) / 2
+        expires_in = (expiration-now).days + 3
+        per_day = mid / expires_in
+
+        extra = ''
+        if num:
+            total = (num * mid * 100) - (7.95 + (num * .75))
+            extra = ' %7.2f %5.2f  %6.03f' % (
+                total,
+                total / expires_in,
+                (total / expires_in) / (num * 100),
+                )
+
+        print '%s  %3s %6.02f  %6.03f%s' % (
+            expiration.strftime('%Y-%m-%d'),
+            expires_in,
+            mid,
+            per_day,
+            extra,
+            )
+
+
+
+def main(argv):
+    if argv.get('calc'):
+        num = argv['<num>']
+        if num:
+            num = int(num)
+        return do_calc(
+            argv['<code>'],
+            argv['<type>'],
+            float(argv['<strike>']),
+            num,
+            )
+
+
+if __name__ == '__main__':
+    import logging
+    logging.basicConfig()
+    argv = docopt.docopt(__doc__)
+    sys.exit(main(argv))

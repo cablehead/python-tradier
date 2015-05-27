@@ -6,9 +6,11 @@ Usage:
     tradier account <account_id> [<order_id>]
     tradier chain <symbol> [<expiration>]
     tradier quote <symbol>...
+    tradier calendar <symbol>...
 """
 
 import operator
+import pprint
 import json
 import sys
 import os
@@ -93,6 +95,12 @@ def main(api, argv):
             print '%-6s %6.2f %6.2f %6.2f' % (
                 q.data['symbol'], q.last, q.mid, q.change)
         return
+
+    if argv['calendar']:
+        api = tradier.Tradier(
+            os.environ['TRADIER_ACCESS_TOKEN'],
+            endpoint='beta')
+        pprint.pprint(api.fundamentals.calendars(argv['<symbol>']))
 
     if argv['chain']:
         if not argv['<expiration>']:

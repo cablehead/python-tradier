@@ -8,6 +8,7 @@ class Tradier(object):
         self.user = Tradier.User(self)
         self.accounts = Tradier.Accounts(self)
         self.markets = Tradier.Markets(self)
+        self.fundamentals = Tradier.Fundamentals(self)
         self.options = Tradier.Options(self)
         self.watchlists = Tradier.Watchlists(self)
 
@@ -73,14 +74,29 @@ class Tradier(object):
             self.agent = agent
 
         def quotes(self, symbols):
-            response = self.agent.request(
+            def callback(response):
+                quote = response['quotes'].get('quote', [])
+                if not isinstance(quote, list):
+                    quote = [quote]
+                return quote
+            return self.agent.request(
                 'GET',
                 'markets/quotes',
-                params={'symbols': ','.join(symbols)})
-            quote = response['quotes'].get('quote', [])
-            if not isinstance(quote, list):
-                quote = [quote]
-            return quote
+                params={'symbols': ','.join(symbols)},
+                callback=callback)
+
+    class Fundamentals(object):
+        def __init__(self, agent):
+            self.agent = agent
+
+        def calendars(self, symbols):
+            def callback(response):
+                return response
+            return self.agent.request(
+                'GET',
+                'markets/fundamentals/calendars',
+                params={'symbols': ','.join(x.upper() for x in symbols)},
+                callback=callback)
 
     class Options(object):
         def __init__(self, agent):
